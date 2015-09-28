@@ -6,15 +6,27 @@ $basedir = '/etc/puppet'
 package {['puppet-server',
           'puppet',
           'httpd',
+          'httpd-devel',
           'mod_ssl',
           'ruby-devel',
           'rubygems',
+          'gcc',
+          'libcurl-devel',
          ] : 
   ensure => latest,
 }
 
-# Some packages required to build ruby gems.
-# package {}
+# Install the following ruby gems.
+package {['rack', 'passenger'] :
+  ensure => installed,
+  provider => 'gem',
+  notify => Exec['passenger-install-apache2-module'],
+}
+exec {'passenger-install-apache2-module':
+  command => '/usr/bin/passenger-install-apache2-module -a',
+  timeout => 600,
+  refreshonly => true,
+}
 
 file {'/etc/puppet/puppet.conf':
   ensure => file,
