@@ -17,6 +17,23 @@ package {['puppet-server',
   ensure => latest,
 }
 
+class { 'puppetdb::globals':
+  version => '2.3.7-1.el6',
+}
+# Configure puppetdb and its underlying database
+class { 'puppetdb':
+  database => 'postgres',
+  listen_address => '0.0.0.0',
+  open_listen_port => true,
+  disable_ssl => true,
+}
+# Configure the puppet master to use puppetdb
+class { 'puppetdb::master::config':
+  puppetdb_disable_ssl => true,
+  puppetdb_port => '8080',
+  puppet_service_name => 'httpd',
+}
+
 # Install the following ruby gems.
 package {['rack', 'passenger'] :
   ensure => installed,
@@ -57,6 +74,7 @@ file { '/etc/httpd/conf.d/puppetmaster.conf':
 file {'/etc/puppet/puppet.conf':
   ensure => file,
   content => template('/vagrant/puppet/templates/puppet.conf.erb'),
+  replace => false,
 }
 
 # Manifest dirs.
@@ -81,11 +99,5 @@ file {["${basedir}/environments",
 service {'puppetmaster':
   ensure => stopped,
   enable => false,
-}
-# Run apache + the rack application.
-service { 'httpd':
-  ensure => running,
-  enable => true,
-  require => File['/etc/httpd/conf.d/puppetmaster.conf'],
 }
 
