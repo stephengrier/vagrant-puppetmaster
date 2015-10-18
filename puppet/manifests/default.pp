@@ -2,6 +2,7 @@
 
 $basedir = '/etc/puppet'
 $rack_app_basedir = '/usr/share/puppet/rack/puppetmasterd'
+$puppet_port = '8140'
 
 # Install puppet-server + other pre-req packages.
 package {['puppet-server',
@@ -25,12 +26,10 @@ class { 'puppetdb':
   database => 'postgres',
   listen_address => '0.0.0.0',
   open_listen_port => true,
-  disable_ssl => true,
 }
 # Configure the puppet master to use puppetdb
 class { 'puppetdb::master::config':
-  puppetdb_disable_ssl => true,
-  puppetdb_port => '8080',
+  puppetdb_port => '8081',
   puppet_service_name => 'httpd',
 }
 
@@ -99,5 +98,12 @@ file {["${basedir}/environments",
 service {'puppetmaster':
   ensure => stopped,
   enable => false,
+}
+
+# Allow the pupper port through the firewall.
+firewall { "${puppet_port} accept - puppet":
+  port   => $puppet_port,
+  proto  => 'tcp',
+  action => 'accept',
 }
 

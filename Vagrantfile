@@ -3,6 +3,8 @@
 
 # How many puppet master should we provision? Defaults to 1.
 $num_masters = (ENV['NUM_MASTERS'] || 1).to_i
+# How many client nodes should we provision? Defaults to 1.
+$num_nodes = (ENV['NUM_NODES'] || 1).to_i
 
 Vagrant.configure("2") do |config|
 
@@ -36,6 +38,31 @@ Vagrant.configure("2") do |config|
         puppet.options        = "--verbose --templatedir /vagrant/puppet/templates"
       end 
 
+    end
+  end
+
+  # One or more client nodes.
+  $num_nodes.times do |n|
+    config.vm.define "clientnode#{n}" do |nconfig|
+      nconfig.vm.hostname = "clientnode#{n}.example.com"
+
+      # The vagrant box image to base the VM on.
+      nconfig.vm.box = "nrel/CentOS-6.5-x86_64"
+
+      # VM memory and CPU sizing.
+      nconfig.vm.provider :virtualbox do |v|
+        v.memory = 2048
+        v.cpus = 2
+      end
+
+      # Provision the VM with puppet.
+      nconfig.vm.provision :puppet do |puppet|
+        puppet.manifests_path = "puppet/manifests"
+        puppet.manifest_file  = "clientnode.pp"
+      end
+
+      # Network config.
+      nconfig.vm.network :private_network, ip: "192.168.33.2#{n}"
     end
   end
 end
