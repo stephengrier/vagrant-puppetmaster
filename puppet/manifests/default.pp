@@ -27,10 +27,24 @@ class { 'puppetdb':
   listen_address => '0.0.0.0',
   open_listen_port => true,
 }
+# An exec that generates the CA and puppet master certificate keypairs.
+# There's no nice way of doing this so we have to start and stop the
+# puppet master process, which will generate the certs.
+exec {'create puppet certs':
+  command => '/sbin/service puppetmaster start && /sbin/service puppetmaster stop',
+  creates => "/var/lib/puppet/ssl/public_keys/${fqdn}.pem",
+}
+exec {'puppetdb ssl-setup':
+  command => '/usr/sbin/puppetdb ssl-setup',
+  creates => '/etc/puppetdb/ssl/public.pem',
+  require => Exec['create puppet certs'],
+  before => Service['puppetdb'],
+}
 # Configure the puppet master to use puppetdb
 class { 'puppetdb::master::config':
   puppetdb_port => '8081',
   puppet_service_name => 'httpd',
+  strict_validation => false,
 }
 
 # Install the following ruby gems.
@@ -92,6 +106,19 @@ file {["${basedir}/environments",
   owner => 'puppet',
   group => 'puppet',
   mode  => '0755',
+}
+
+file { '/etc/puppet/hiera.yaml':
+  ensure => 'file',
+  owner => 'root',
+  group => 'root',
+  source => "/vagrant/puppet/files/hiera.yaml",
+  notify  =>  Service['puppetmaster'],
+}
+
+file { '/etc/puppet/hieradata':
+  ensure => 'directory',
+  mode => '0644',
 }
 
 # The WEBrick puppetmaster process should be stopped.
