@@ -33,6 +33,7 @@ class { 'puppetdb':
 exec {'create puppet certs':
   command => '/sbin/service puppetmaster start && /sbin/service puppetmaster stop',
   creates => "/var/lib/puppet/ssl/public_keys/${fqdn}.pem",
+  require => Package['puppet-server'],
 }
 exec {'puppetdb ssl-setup':
   command => '/usr/sbin/puppetdb ssl-setup',
@@ -51,12 +52,19 @@ class { 'puppetdb::master::config':
 package {['rack', 'passenger'] :
   ensure => installed,
   provider => 'gem',
-  notify => Exec['passenger-install-apache2-module'],
+  notify => [Exec['passenger-install-apache2-snippet'],
+             Exec['passenger-install-apache2-module']],
+}
+exec {'passenger-install-apache2-snippet':
+  command => '/usr/bin/passenger-install-apache2-module --snippet > /etc/httpd/conf.d/mod_passenger.conf',
+  refreshonly => true,
 }
 exec {'passenger-install-apache2-module':
   command => '/usr/bin/passenger-install-apache2-module -a',
   timeout => 600,
   refreshonly => true,
+  require => Exec['passenger-install-apache2-snippet'],
+  notify => Service['httpd'],
 }
 
 # Install the rack application.
@@ -82,6 +90,7 @@ file { '/etc/httpd/conf.d/puppetmaster.conf':
   ensure  => file,
   content => template('/vagrant/puppet/templates/puppetmaster.conf.erb'),
   require => Package['httpd'],
+  notify => Service['httpd'],
 }
 
 file {'/etc/puppet/puppet.conf':

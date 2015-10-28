@@ -1,6 +1,6 @@
-LoadModule passenger_module /usr/lib/ruby/gems/1.8/gems/passenger-5.0.20/buildout/apache2/mod_passenger.so
-PassengerRoot /usr/lib/ruby/gems/1.8/gems/passenger-5.0.20
-PassengerRuby /usr/bin/ruby
+# Apache config for puppet master.
+# NB: the passenger_module must be loaded in the file mod_passenger.conf. The contents
+# of that file should be the output from "passenger-install-apache2-module --snippet".
 
 # And the passenger performance tuning settings:
 # Set this to about 1.5 times the number of CPU cores in your master:
