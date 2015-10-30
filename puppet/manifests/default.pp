@@ -96,7 +96,6 @@ file { '/etc/httpd/conf.d/puppetmaster.conf':
 file {'/etc/puppet/puppet.conf':
   ensure => file,
   content => template('/vagrant/puppet/templates/puppet.conf.erb'),
-  replace => false,
 }
 
 # Manifest dirs.
@@ -117,12 +116,17 @@ file {["${basedir}/environments",
   mode  => '0755',
 }
 
-file { '/etc/puppet/hiera.yaml':
-  ensure => 'file',
-  owner => 'root',
-  group => 'root',
-  source => "/vagrant/puppet/files/hiera.yaml",
-  notify  =>  Service['puppetmaster'],
+file {
+  '/etc/puppet/hiera.yaml':
+    ensure => 'file',
+    owner => 'root',
+    group => 'root',
+    source => '/vagrant/puppet/files/hiera.yaml';
+  '/etc/puppet/autosign.conf':
+    ensure => file,
+    owner => 'root',
+    group => 'root',
+    source => '/vagrant/puppet/files/autosign.conf';
 }
 
 file { '/etc/puppet/hieradata':

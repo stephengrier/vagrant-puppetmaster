@@ -20,6 +20,8 @@
 [master]
     ssldir = $vardir/ssl
     always_cache_features = true
+    storeconfigs = true
+    storeconfigs_backend = puppetdb
 
 [agent]
     # The file in which puppetd stores a list of the classes
