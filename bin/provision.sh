@@ -9,6 +9,8 @@ yum update -y puppet
 
 # Install the puppetlabs/puppetdb module.
 puppet module --modulepath /vagrant/puppet/modules install puppetlabs/puppetdb
+# and the zack-r10k module, which we use to configure r10k.
+puppet module --modulepath /vagrant/puppet/modules install zack-r10k
 
 exit 0;
 

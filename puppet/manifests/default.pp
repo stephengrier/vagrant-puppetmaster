@@ -10,8 +10,8 @@ package {['puppet-server',
           'httpd',
           'httpd-devel',
           'mod_ssl',
-          'ruby-devel',
-          'rubygems',
+#          'ruby-devel',
+#          'rubygems',
           'gcc',
           'libcurl-devel',
          ] : 
@@ -98,18 +98,8 @@ file {'/etc/puppet/puppet.conf':
   content => template('/vagrant/puppet/templates/puppet.conf.erb'),
 }
 
-# Manifest dirs.
-file {["${basedir}/environments",
-       "${basedir}/environments/production",
-       "${basedir}/environments/production/manifests",
-       "${basedir}/environments/production/modules",
-       "${basedir}/environments/testing",
-       "${basedir}/environments/testing/manifests",
-       "${basedir}/environments/testing/modules",
-       "${basedir}/environments/dev",
-       "${basedir}/environments/dev/manifests",
-       "${basedir}/environments/dev/modules",
-     ] :
+# Environments base dir.
+file {"${basedir}/environments":
   ensure => directory,
   owner => 'puppet',
   group => 'puppet',
@@ -145,5 +135,21 @@ firewall { "${puppet_port} accept - puppet":
   port   => $puppet_port,
   proto  => 'tcp',
   action => 'accept',
+}
+
+# Configure r10k from our puppet-control Git repo.
+class { 'r10k':
+  sources           => {
+    'control' => {
+      'remote'  => hiera('r10k_remote'),
+      'basedir' => "${::settings::confdir}/environments",
+      'prefix'  => false,
+    }
+  },
+  notify => Exec['r10k-deploy-environments'],
+}
+exec {'r10k-deploy-environments':
+  command => '/usr/bin/r10k deploy environment -pv',
+  refreshonly => true,
 }
 
