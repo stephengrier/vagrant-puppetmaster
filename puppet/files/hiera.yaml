@@ -2,10 +2,9 @@
 :backends:
   - yaml
 :hierarchy:
+  - "%{::clientcert}"
+  - "%{::environment}"
   - defaults
-  - "%{environment}"
-  - "%{clientcert}"
-  - global
 
 :yaml:
   :datadir: '/etc/puppet/environments/%{::environment}/hieradata'
