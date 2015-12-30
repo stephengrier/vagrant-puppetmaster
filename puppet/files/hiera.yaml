@@ -4,7 +4,10 @@
 :hierarchy:
   - nodes/"%{::clientcert}"
   - "%{::environment}"
-  - accounts
+  - users
+  - groups
+  - usergroups
+  - ssh_keys
   - defaults
 
 :yaml:
