@@ -49,7 +49,7 @@ class { 'puppetdb::master::config':
 }
 
 # Install the following ruby gems.
-package {['rack', 'passenger'] :
+package {['rack', 'passenger', 'hiera-eyaml'] :
   ensure => installed,
   provider => 'gem',
   notify => [Exec['passenger-install-apache2-snippet'],
