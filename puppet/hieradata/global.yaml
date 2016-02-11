@@ -1,2 +1,6 @@
 ---
 r10k_remote: 'https://github.com/glarizza/puppet_repository.git'
+
+# Set the following option if you want to pull pre-existing keys for the
+# eyaml hiera backend. Otherwise new keys will be generated.
+#eyamlkeys_command: '/usr/bin/wget http://example.com/keys.tgz | tar -C /var/lib/puppet/eyaml/keys xzf -'

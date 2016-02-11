@@ -49,7 +49,7 @@ class { 'puppetdb::master::config':
 }
 
 # Install the following ruby gems.
-package {['rack', 'passenger', 'hiera-eyaml'] :
+package {['rack', 'passenger'] :
   ensure => installed,
   provider => 'gem',
   notify => [Exec['passenger-install-apache2-snippet'],
@@ -151,5 +151,32 @@ class { 'r10k':
 exec {'r10k-deploy-environments':
   command => '/usr/bin/r10k deploy environment -pv',
   refreshonly => true,
+}
+
+# Install hiera-eyaml backend.
+package { 'hiera-eyaml' :
+  ensure => installed,
+  provider => 'gem',
+}
+# Create location to store eyaml keys.
+file { ['/var/lib/puppet/eyaml',
+        '/var/lib/puppet/eyaml/keys'] :
+  ensure => directory,
+  owner => 'puppet',
+  group => 'puppet',
+  mode  => '0755',
+}
+# We exec a command to create the eyaml key files. The default is to run the
+# eyaml createkeys command. However, it is possible to exec some other command
+# by setting the eyamlkeys_command option in puppet/hieradata/global.yaml. For
+# example, this might copy the keys from a file server.
+$eyamlkeys_command = hiera('eyamlkeys_command', '/usr/bin/eyaml createkeys --pkcs7-private-key=/var/lib/puppet/eyaml/keys/private_key.pkcs7.pem --pkcs7-public-key=/var/lib/puppet/eyaml/keys/public_key.pkcs7.pem && chown puppet:puppet /var/lib/puppet/eyaml/keys/*.pem')
+
+exec {'create eyaml keys':
+  command => $eyamlkeys_command,
+  creates => '/var/lib/puppet/eyaml/keys/private_key.pkcs7.pem',
+  require => [File['/var/lib/puppet/eyaml/keys'],
+              Package['hiera-eyaml']],
+  before => Service['puppetdb'],
 }
 
