@@ -3,7 +3,7 @@
   - eyaml
   - yaml
 :hierarchy:
-  - nodes/"%{::clientcert}"
+  - "nodes/%{::clientcert}"
   - "%{::environment}"
   - users
   - groups
