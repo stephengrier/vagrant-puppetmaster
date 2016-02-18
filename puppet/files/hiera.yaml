@@ -3,6 +3,7 @@
   - eyaml
   - yaml
 :hierarchy:
+  - greencard
   - "nodes/%{::clientcert}"
   - "%{::environment}"
   - users
