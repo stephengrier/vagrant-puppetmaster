@@ -180,3 +180,15 @@ exec {'create eyaml keys':
   before => Service['puppetdb'],
 }
 
+# Create the config.yaml file for the root user so that "eyaml edit" etc works.
+file {
+  '/root/.eyaml':
+    ensure => directory;
+  '/root/.eyaml/config.yaml':
+    ensure => file,
+    content => "---
+pkcs7_public_key: '/var/lib/puppet/eyaml/keys/public_key.pkcs7.pem'
+pkcs7_private_key: '/var/lib/puppet/eyaml/keys/private_key.pkcs7.pem'\n",
+    require => File['/root/.eyaml'];
+}
+
