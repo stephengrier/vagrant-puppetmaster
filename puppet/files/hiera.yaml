@@ -5,7 +5,9 @@
 :hierarchy:
   - greencard
   - "nodes/%{::clientcert}"
-  - "%{::environment}"
+  - "environments/%{::environment}"
+  - "os/%{::osfamily}/%{::operatingsystem}/%{::operatingsystemrelease}"
+  - "os/%{::osfamily}/%{::operatingsystem}"
   - users
   - groups
   - usergroups
