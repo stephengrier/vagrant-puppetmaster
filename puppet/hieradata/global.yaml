@@ -1,5 +1,9 @@
 ---
-r10k_remote: 'https://github.com/glarizza/puppet_repository.git'
+r10k_control_remote: 'https://github.com/glarizza/puppet_repository.git'
+
+r10k_fileserver_remote: 'https://github.com/github/testrepo.git'
+fileserver_basedir: "%{::settings::confdir}/files"
+fileserver_mount_point_name: 'files'
 
 # Set the following option if you want to pull pre-existing keys for the
 # eyaml hiera backend. Otherwise new keys will be generated.

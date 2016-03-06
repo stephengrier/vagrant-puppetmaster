@@ -98,6 +98,13 @@ file {'/etc/puppet/puppet.conf':
   content => template('/vagrant/puppet/templates/puppet.conf.erb'),
 }
 
+$fileserver_basedir = hiera('fileserver_basedir', '/etc/puppet/files')
+$fileserver_mount_point_name = hiera('fileserver_mount_point_name', 'files')
+file {'/etc/puppet/fileserver.conf':
+  ensure => file,
+  content => template('/vagrant/puppet/templates/fileserver.conf.erb'),
+}
+
 # Environments base dir.
 file {"${basedir}/environments":
   ensure => directory,
@@ -141,8 +148,13 @@ firewall { "${puppet_port} accept - puppet":
 class { 'r10k':
   sources           => {
     'control' => {
-      'remote'  => hiera('r10k_remote'),
+      'remote'  => hiera('r10k_control_remote'),
       'basedir' => "${::settings::confdir}/environments",
+      'prefix'  => false,
+    },
+    'fileserver' => {
+      'remote'  => hiera('r10k_fileserver_remote'),
+      'basedir' => hiera('fileserver_basedir', '/etc/puppet/files'),
       'prefix'  => false,
     }
   },
