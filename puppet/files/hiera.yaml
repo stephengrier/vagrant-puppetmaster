@@ -7,7 +7,7 @@
   - "nodes/%{::clientcert}"
   - "nodegroups/%{nodegroup}"
   - "environments/%{::environment}"
-  - "os/%{::osfamily}/%{::operatingsystem}/%{::operatingsystemrelease}"
+  - "os/%{::osfamily}/%{::operatingsystem}/%{::operatingsystemmajrelease}"
   - "os/%{::osfamily}/%{::operatingsystem}"
   - users
   - groups
